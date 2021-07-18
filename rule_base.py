@@ -10,9 +10,9 @@ punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
 punc = list(punc)
 def generate_keyword():
     keyword_list = {"Opioid terms":"fentanyl, heroin, hydromorphone, dilaudid,  oxymorphone, opanum, opana, methadone, oxycodone, oxycotin, roxicodone, percocet, morphine, hydrocodone, vicodin, lortab, codeine, meperidine, demerol, tramadol, ultram, meloxicam, kratom, carfentanil, buprenorphine, meperidine, narcotic, dihydrocodeine, levorphanol, naloxone, naltrexone, pentazocine, suboxone, subutex, tapentadol, vivitrol, opiate, opioid, opium, opioid",
-    "Use disorder terms":"abuse, abuses, abused, abusive, abusing, addict, addicts, addicting, addicted, addiction, dependence, dependant, dependance, dependency, misuse, misuses, misused, misusing, mis using, mis-using, overdose, overdoses, overdoes, over dose, over dosed, od, over use, over used, overuse, use disorder, use-disorder, inject, injected, injects, injection, injecting, ivda, intravenous drug abuse, iv drug use, intravenous drug user, iv drug user, ivdu, intravenous drug abuse, iv drug abuse, iv drug abuse, iv drug abuser, withdrawal, withdraw, withdrew, withdrawling",
-    "Negation terms":"absence, absent, deny, denies, denied, denying, do not, don’t, donnot, exclude, excluded, excludes, excluding, lack, lacked, lacks, lacking, negative, negation, never, no, no evidence, no history, no hx, no sign, no signs, not observed, not present, without, without evidence, suspect, suspected",
-    "Specialized terms":"denies alcohol/illicits/tobac, denies drug, denies drug abuse, denies etoh, illicit drugs, denies history of alcohol, tobacco or illegal drug use, denies illicit drug use, denies illict or iv drug use, denies iv drug use, denies smoking, alcohol, illicit drug use, denies tobacco or illicit drug use, denies tobacco, alcohol, drug use, denies tobacco/etoh/illicit drug use, drug abuse:denies, drugs: denies, illicit drug use: denies, illicits:denies, ivda/intranasal: denies, negative for current tobacco, alcohol, or recreational drug use, recreational drugs: denies",
+    "Use disorder terms":"abuses, abused, abusive, abusing, abuse, addicts, addicting, addicted, addiction, addict, dependence, dependant, dependance, dependency, misuses, misused, misusing, mis using, mis-using, misuse, overdoses, overdoes, over dose, over dosed, overdose, od, over used, over use, overuse, use disorder, use-disorder, injected, injects, injection, injecting, inject, ivda, intravenous drug abuse, intravenous drug user, iv drug user, iv drug use, ivdu, intravenous drug abuse, iv drug abuser, iv drug abuse, withdrawal, withdraw, withdrew, withdrawling",
+    "Negation terms":"absence, absent, denies, denied, denying, deny, do not, don’t, donnot, excluded, excludes, excluding, exclude, lacked, lacks, lacking, lack, negative, negation, never, no evidence, no history, no hx, no sign, no signs, not observed, not present, no, without evidence, without, suspected, suspect",
+    "Specialized terms":"denies alcohol/illicits/tobac, denies drug abuse, denies drug, denies illicit drug use, denies illict or iv drug use, denies iv drug use, denies tobacco or illicit drug use, denies tobacco/etoh/illicit drug use, drug abuse:denies, illicit drug use: denies, illicits:denies, ivda/intranasal: denies, recreational drugs: denies, drugs: denies",
     "Specific clinic":"first bridge clinic, the bridge"}
 
     def transform_lower_list(mylist):
@@ -20,6 +20,9 @@ def generate_keyword():
     for k, v in keyword_list.items():
         keyword_list[k] = list(map(lambda x: x.lower() ,keyword_list[k].split(', ')))
         print(keyword_list[k])
+        if k == "Specialized terms":
+            addon =["denies etoh, illicit drugs","denies history of alcohol, tobacco or illegal drug use","denies smoking, alcohol, illicit drug use","denies smoking, drinking, or using drugs","denies tobacco, alcohol, drug use","negative for current tobacco, alcohol, or recreational drug use"]
+            keyword_list[k] =addon+keyword_list[k]
     #listkeys = sum([*keyword_list.values()],[])
     return keyword_list
 def read_txt_csv():
@@ -354,6 +357,17 @@ def read_csv_parse(keyword_list):
         segment = re.findall(r":", text)
         secindex = [(m.start(0), m.end(0)) for m in re.finditer(r":",text)]
         textcp = ('.'+text + '.')[:-1]
+        rspecial = r'(\b%s)'% r'|\b'.join(keyword_list["Specialized terms"])
+        regspecial = re.compile("%s" %(rspecial))
+        special_term = re.findall(regspecial,textcp.lower())
+        if special_term:
+            for cspecial in special_term:
+                judge['DeID'].append(row['DeID'])
+                judge['DocumentName'].append(row["DocumentName"])
+                judge['Sections'].append("wholeinfo")
+                judge['Keyterms'].append(cspecial)
+                judge['Rule'].append("Rule 5")
+
         eachseg ={}
         report = []
         lastkey = "basic_info"
