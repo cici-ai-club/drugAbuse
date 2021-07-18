@@ -10,7 +10,7 @@ punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
 punc = list(punc)
 def generate_keyword():
     keyword_list = {"Opioid terms":"fentanyl, heroin, hydromorphone, dilaudid,  oxymorphone, opanum, opana, methadone, oxycodone, oxycotin, roxicodone, percocet, morphine, hydrocodone, vicodin, lortab, codeine, meperidine, demerol, tramadol, ultram, meloxicam, kratom, carfentanil, buprenorphine, meperidine, narcotic, dihydrocodeine, levorphanol, naloxone, naltrexone, pentazocine, suboxone, subutex, tapentadol, vivitrol, opiate, opioid, opium, opioid",
-    "Use disorder terms":"abuse, abuses, abused, abusive, abusing, addict, addicts, addicting, addicted, addiction, dependence, dependant, dependance, dependency, dependency, misuse, misuses, misused, misusing, mis using, mis-using, overdose, overdoses, overdoes, over dose, over dosed,od, over use, over used, overuse, use disorder, use-disorder, inject, injected, injects, injection, injecting, ivda, intravenous drug abuse, iv drug use, intravenous drug user, iv drug user, ivdu, intravenous drug abuse, iv drug abuse, iv drug abuse, iv drug abuser, withdrawal, withdraw, withdrew, withdrawling",
+    "Use disorder terms":"abuse, abuses, abused, abusive, abusing, addict, addicts, addicting, addicted, addiction, dependence, dependant, dependance, dependency, misuse, misuses, misused, misusing, mis using, mis-using, overdose, overdoses, overdoes, over dose, over dosed, od, over use, over used, overuse, use disorder, use-disorder, inject, injected, injects, injection, injecting, ivda, intravenous drug abuse, iv drug use, intravenous drug user, iv drug user, ivdu, intravenous drug abuse, iv drug abuse, iv drug abuse, iv drug abuser, withdrawal, withdraw, withdrew, withdrawling",
     "Negation terms":"absence, absent, deny, denies, denied, denying, do not, don’t, donnot, exclude, excluded, excludes, excluding, lack, lacked, lacks, lacking, negative, negation, never, no, no evidence, no history, no hx, no sign, no signs, not observed, not present, without, without evidence, suspect, suspected",
     "Specialized terms":"denies alcohol/illicits/tobac, denies drug, denies drug abuse, denies etoh, illicit drugs, denies history of alcohol, tobacco or illegal drug use, denies illicit drug use, denies illict or iv drug use, denies iv drug use, denies smoking, alcohol, illicit drug use, denies tobacco or illicit drug use, denies tobacco, alcohol, drug use, denies tobacco/etoh/illicit drug use, drug abuse:denies, drugs: denies, illicit drug use: denies, illicits:denies, ivda/intranasal: denies, negative for current tobacco, alcohol, or recreational drug use, recreational drugs: denies",
     "Specific clinic":"first bridge clinic, the bridge"}
@@ -86,15 +86,15 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
         sentence = " ".join(words)[indextup[0]:indextup[1]]
         firstindex = sentence.index(first)
         secondindex = sentence.index(second)
-        partsen12 = sentence[firstindex+len(first)+1:secondindex-1]
-        punk12 =  set(punc)&set(partsen12.split())
+        partsen12 = sentence[firstindex+len(first):secondindex-1]
+        punk12 =  set(punc)&set(list(partsen12))
         if len(s)==3:
             third = s[2]
             thirdindex = sentence.index(third)
-            partsen23 = sentence[secondindex+len(second)+1:thirdindex-1]
+            partsen23 = sentence[secondindex+len(second):thirdindex-1]
             punk23 =  set(punc)&set(list(partsen23))
        
-        if len(nltk.word_tokenize(partsen12))<=3 and len(punk12)==0:
+        if len(re.findall("\w+",partsen12))<=3 and len(punk12)==0:
             if len(s)==3:
                 if len(punk23)==0:
                     return True
@@ -106,7 +106,7 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
         else:
             return False
 
-    def spaceless3_23(s,indextup): # A function to check whether second word and first one has no more than 3 words
+    def spaceless3_23(s,indextup): # A function to check whether second word and third one has no more than 3 words
         first = s[0]
         second = s[1]
         third = s[2]
@@ -114,11 +114,11 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
         firstindex = sentence.index(first)
         secondindex = sentence.index(second)
         thirdindex = sentence.index(third)
-        partsen12 = sentence[firstindex+len(first)+1:secondindex-1]
-        punk12 =  set(punc)&set(partsen12.split())
-        partsen23 = sentence[secondindex+len(second)+1:thirdindex-1]
+        partsen12 = sentence[firstindex+len(first):secondindex-1]
+        punk12 =  set(punc)&set(list(partsen12))
+        partsen23 = sentence[secondindex+len(second):thirdindex-1]
         punk23 =  set(punc)&set(list(partsen23))
-        if len(nltk.word_tokenize(partsen23))<=3 and len(punk12)==0 and len(punk23)==0:
+        if len(re.findall("\w+",partsen23))<=3 and len(punk23)==0 and len(punk12)==0:
             return True
         else:
             return False
@@ -136,43 +136,48 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
             return True
         else:
             return False
-
     # build the regular expression for all dictionaries
     rop = r'(\b%s)'% r'|\b'.join(keyword_list["Opioid terms"])
     rdisorder = r'(\b%s)'% r'|\b'.join(keyword_list["Use disorder terms"])
     rspecial = r'(\b%s)'% r'|\b'.join(keyword_list["Specialized terms"])
     rneg = r'(\b%s)'% r'|\b'.join(keyword_list["Negation terms"])
     rclinic = r'(\b%s)'% r'|\b'.join(keyword_list["Specific clinic"])
-
+    # extract negwords
+    neg_words = re.findall(re.compile("%s" %(rneg))," ".join(words))
     # if has neg words go to rule 3 and rule 4
-    if set(words) & set(keyword_list["Negation terms"]):
-        # extract negwords
-        neg_words = re.findall(re.compile("%s" %(rneg))," ".join(words))
-        negindex = [(m.start(0), m.end(0)) for m in re.finditer(re.compile("%s" %(rneg))," ".join(words))]
-        
+    if len(neg_words):
+        negindex = [(m.start(0), m.end(0)) for m in re.finditer(re.compile("%s" %(rneg))," ".join(words))] 
         # Rule 3 
-        if set(words) & set(keyword_list["Opioid terms"]) and set(words) & set(keyword_list["Use disorder terms"]):
-            opterms = re.findall(re.compile("%s" %(rop))," ".join(words)) # extract Opioid terms
+        
+        opterms = re.findall(re.compile("%s" %(rop))," ".join(words)) # extract Opioid terms
+        disorderterms = re.findall(re.compile("%s" %(rdisorder))," ".join(words)) # extract disorderterms
+        if len(opterms) and len(disorderterms):
             opindex = [(m.start(0), m.end(0)) for m in re.finditer(re.compile("%s" %(rop))," ".join(words))]
-            disorderterms = re.findall(re.compile("%s" %(rdisorder))," ".join(words)) # extract disorderterms
             
             ##############3##########################
             reg3 = re.compile("%s+.*?%s+.*?%s" %(rneg,rop,rdisorder))
-            reg3index = [(m.start(0), m.end(0)) for m in re.finditer(reg3," ".join(words))]
+            reg3index = []
             candidate_phrase03 = []
             copywords = copy.deepcopy(words)
             copywords = " ".join(copywords)
             strwords = " ".join(words)
+            lastbound3 = 0
             # get all possible phrase by looping all possible neg words
             for ind3, x3 in enumerate(neg_words):
                 tempphrase = re.findall(reg3,copywords)
+                reg3index += [(m.start(0)+lastbound3, m.end(0)+lastbound3) for m in re.finditer(reg3,copywords)]
                 candidate_phrase03 += tempphrase
                 copywords = strwords[negindex[ind3][1]+1:]
+                lastbound3 = negindex[ind3][1]+1
             # filter out those phrase if first word and second word has more than 3 valid words
             candidate_phrase3 = list(filter(lambda x:spaceless3(x[0],x[1]),zip(candidate_phrase03,reg3index)))
-            # save those extracted phrases 
+            # save those extracted phrases
+            stack = []
             if candidate_phrase3:
                 for c3 in candidate_phrase3:
+                    if c3 in stack:
+                        continue
+                    stack.append(c3)
                     c3 = c3[0]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
@@ -183,21 +188,28 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
             
             ##############Rule 4##########################
             reg4 = re.compile("%s+.*?%s+.*?%s" %(rop,rdisorder,rneg))
-            reg4index = [(m.start(0), m.end(0)) for m in re.finditer(reg4," ".join(words))]
+            reg4index = []
             candidate_phrase04 = []
             copywords = copy.deepcopy(words)
             copywords = " ".join(copywords)
             strwords = " ".join(words)
+            lastbound4 = 0
             # get all possible phrase by looping all possible neg words
             for ind4,x4 in enumerate(opterms):
                 tempphrase = re.findall(reg4,copywords)
+                reg4index += [(m.start(0)+lastbound4, m.end(0)+lastbound4) for m in re.finditer(reg4,copywords)]
                 candidate_phrase04 += tempphrase
                 copywords = strwords[opindex[ind4][1]+1:]
+                lastbound4 = opindex[ind4][1]+1
             # filter out those phrase if second word and third word has more than 3 valid words
             candidate_phrase4 = list(filter(lambda x:spaceless3_23(x[0],x[1]),zip(candidate_phrase04,reg4index)))
-        
-            if candidate_phrase4: 
+            
+            stack = []
+            if candidate_phrase4:
                 for c4 in candidate_phrase4:
+                    if c4 in stack:
+                        continue
+                    stack.append(c4)
                     c4 = c4[0]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
@@ -206,29 +218,37 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
                     judge['Rule'].append("Rule 4")
     else:
         ### rule 1, 2, 6
-        if set(words) & set(keyword_list["Opioid terms"]) and set(words) & set(keyword_list["Use disorder terms"]):   
+        opterms = re.findall(re.compile("%s" %(rop))," ".join(words))
+        disorderterms = re.findall(re.compile("%s" %(rdisorder))," ".join(words))
+        if len(opterms) and len(disorderterms):   
             #opterms = set(words) & set(keyword_list["Opioid terms"])
             #disorderterms = set(words) & set(keyword_list["Use disorder terms"])
-            opterms = re.findall(re.compile("%s" %(rop))," ".join(words))
             opindex = [(m.start(0), m.end(0)) for m in re.finditer(re.compile("%s" %(rop))," ".join(words))]
-            disorderterms = re.findall(re.compile("%s" %(rdisorder))," ".join(words))
             disorderindex = [(m.start(0), m.end(0)) for m in re.finditer(re.compile("%s" %(rdisorder))," ".join(words))]
             ##############1##########################
             reg1 = re.compile("%s+.*?%s" %(rop,rdisorder))
-            reg1index = [(m.start(0), m.end(0)) for m in re.finditer(reg1," ".join(words))]
+            reg1index = []
             candidate_phrase01 = []
             copywords = copy.deepcopy(words)
             copywords = " ".join(copywords)
             strwords = " ".join(words)
             # get all possible phrase by looping all possible Opioid terms
+            lastbound1 = 0
             for ind1,x1 in enumerate(opterms):
                 tempphrase = re.findall(reg1,copywords)
+                reg1index += [(m.start(0)+lastbound1, m.end(0)+lastbound1) for m in re.finditer(reg1,copywords)]
+                
                 candidate_phrase01 += tempphrase
                 copywords = strwords[opindex[ind1][1]+1:]
+                lastbound1 = opindex[ind1][1]+1
             # filter out those phrase if first word and second word has more than 3 valid words
             candidate_phrase1 = list(filter(lambda x:spaceless3(x[0],x[1]),zip(candidate_phrase01,reg1index)))
+            stack = []
             if candidate_phrase1: 
                 for c1 in candidate_phrase1:
+                    if c1 in stack:
+                        continue
+                    stack.append(c1)
                     c1 = c1[0]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
@@ -238,20 +258,27 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
 
             ##############2##########################
             reg2 = re.compile("%s+.*?%s" %(rdisorder,rop))
-            reg2index = [(m.start(0), m.end(0)) for m in re.finditer(reg2," ".join(words))]
+            reg2index = []
             candidate_phrase02 = []
             copywords = copy.deepcopy(words)
             copywords = " ".join(copywords)
             strwords = " ".join(words)
+            lastbound2 = 0
             # get all possible phrase by looping all possible disorder terms
             for ind2, x2 in enumerate(disorderterms):
                 tempphrase = re.findall(reg2,copywords)
+                reg2index += [(m.start(0)+lastbound2, m.end(0)+lastbound2) for m in re.finditer(reg2,copywords)]
                 candidate_phrase02 += tempphrase
                 copywords = strwords[disorderindex[ind2][1]+1:]
+                lastbound2 = disorderindex[ind2][1]+1
             # filter out those phrase if first word and second word has more than 3 valid words
             candidate_phrase2 = list(filter(lambda x:spaceless3(x[0],x[1]),zip(candidate_phrase02,reg2index)))
+            stack = []
             if candidate_phrase2:
                 for c2 in candidate_phrase2:
+                    if c2 in stack:
+                        continue
+                    stack.append(c2)
                     c2 = c2[0]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
@@ -267,7 +294,7 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
                 judge['DeID'].append(deid)
                 judge['DocumentName'].append(documentname)
                 judge['Sections'].append(section)
-                judge['Keyterms'].append(" ".join(cclinic))
+                judge['Keyterms'].append(cclinic)
                 judge['Rule'].append("Rule 6")
 
     
@@ -287,26 +314,26 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
 
 
 def checkkeyword(keyword_list,eachseg,judge,documentname,deid):
-    nlp0 = spacy.load("en_core_sci_sm")
+    #nlp0 = spacy.load("en_core_sci_sm")
     # loop each segment
     for k, v in eachseg.items(): # k is parsed section
-        lemv = lemmatize(v, nlp0)
-        lemv = lemv.lower() # lowercase current segment
-        newv = lemv.split()
-        checktwo = keyword_list["Opioid terms"]
+        #lemv = lemmatize(v, nlp0)
+        lemv = v.lower() # lowercase current segment
+        rop = r'(\b%s)'% r'|\b'.join(keyword_list["Opioid terms"])
+        opterms = re.findall(re.compile("%s" %(rop)),lemv) # extract Opioid terms
         rclinic = r'(\b%s)'% r'|\b'.join(keyword_list["Specific clinic"])
         regclinic = re.compile("%s" %(rclinic))
         clinic_term = re.findall(regclinic,lemv)
-        
+
         # check current segement has overlapping with Opioid terms or clinic terms or not
-        if set(checktwo) & set(newv) or len(clinic_term)>0:
+        if len(opterms) or len(clinic_term)>0:
             # toknize segement into sentence
             sentences = nltk.tokenize.sent_tokenize(lemv)
             # loop each sentence
             for s in sentences:
                 words = s.split()
                 # check current sentence has overlapping with Opioid terms or clinic terms or not
-                if set(checktwo) & set(words) or len(clinic_term)>0:
+                if len(opterms) or len(clinic_term)>0:
                     # pull current sentence for allrules
                     rule5(words,keyword_list,judge,documentname,deid,k)
 def read_csv_parse(keyword_list):
@@ -319,11 +346,11 @@ def read_csv_parse(keyword_list):
     # loop each row of the csv
     for index, row in df.iterrows():
         #judge["DocumentName"].append(row["DocumentName"])
-
         # prepare segement
         text = row['ValueText']
         text = text.replace("\n",". ")
         text = text.replace(";",".")
+        text = text.replace("..",".")
         segment = re.findall(r":", text)
         secindex = [(m.start(0), m.end(0)) for m in re.finditer(r":",text)]
         textcp = ('.'+text + '.')[:-1]
