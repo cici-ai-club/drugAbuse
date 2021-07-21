@@ -5,6 +5,7 @@ import glob
 import re
 import spacy
 import nltk
+nltk.download('punkt')
 import copy
 punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
 punc = list(punc)
@@ -145,6 +146,7 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
     rspecial = r'(\b%s)'% r'|\b'.join(keyword_list["Specialized terms"])
     rneg = r'(\b%s)'% r'|\b'.join(keyword_list["Negation terms"])
     rclinic = r'(\b%s)'% r'|\b'.join(keyword_list["Specific clinic"])
+    wordstext = " ".join(words)
     # extract negwords
     neg_words = re.findall(re.compile("%s" %(rneg))," ".join(words))
     # if has neg words go to rule 3 and rule 4
@@ -181,11 +183,11 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
                     if c3 in stack:
                         continue
                     stack.append(c3)
-                    c3 = c3[0]
+                    c3 = wordstext[c3[1][0]:c3[1][1]]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
                     judge['Sections'].append(section)
-                    judge['Keyterms'].append(" ".join(c3))
+                    judge['Keyterms'].append(c3)
                     judge['Rule'].append("Rule 3")
                 
             
@@ -213,11 +215,11 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
                     if c4 in stack:
                         continue
                     stack.append(c4)
-                    c4 = c4[0]
+                    c4 = wordstext[c4[1][0]:c4[1][1]]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
                     judge['Sections'].append(section)
-                    judge['Keyterms'].append(" ".join(c4))
+                    judge['Keyterms'].append(c4)
                     judge['Rule'].append("Rule 4")
     else:
         ### rule 1, 2, 6
@@ -252,11 +254,11 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
                     if c1 in stack:
                         continue
                     stack.append(c1)
-                    c1 = c1[0]
+                    c1 = wordstext[c1[1][0]:c1[1][1]]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
                     judge['Sections'].append(section)
-                    judge['Keyterms'].append(" ".join(c1))
+                    judge['Keyterms'].append(c1)
                     judge['Rule'].append("Rule 1")
 
             ##############2##########################
@@ -282,11 +284,11 @@ def rule5(words,keyword_list,judge,documentname,deid,section):
                     if c2 in stack:
                         continue
                     stack.append(c2)
-                    c2 = c2[0]
+                    c2 = wordstext[c2[1][0]:c2[1][1]]
                     judge['DeID'].append(deid)
                     judge['DocumentName'].append(documentname)
                     judge['Sections'].append(section)
-                    judge['Keyterms'].append(" ".join(c2))
+                    judge['Keyterms'].append(c2)
                     judge['Rule'].append("Rule 2")
 
         ##################Rule 6########################
@@ -348,12 +350,14 @@ def read_csv_parse(keyword_list):
 
     # loop each row of the csv
     for index, row in df.iterrows():
+        print(index,row)
         #judge["DocumentName"].append(row["DocumentName"])
         # prepare segement
         text = row['ValueText']
         text = text.replace("\n",". ")
         text = text.replace(";",".")
         text = text.replace("..",".")
+        text = re.sub(r"\d+:\d+","",text)
         segment = re.findall(r":", text)
         secindex = [(m.start(0), m.end(0)) for m in re.finditer(r":",text)]
         textcp = ('.'+text + '.')[:-1]
@@ -372,14 +376,21 @@ def read_csv_parse(keyword_list):
         report = []
         lastkey = "basic_info"
         lastcolon = 0
+       
         if len(segment):
             for sindex in range(len(secindex)): 
-                precolon = textcp[:secindex[sindex][0]+1]
-                predot = re.finditer(r"\.",precolon)
-                predot = list(predot)[-1].start(0)
-                if predot <lastcolon:
-                    predot = re.finditer(r"(;|,|\n|\?)",precolon)
-                    predot = list(predot)[-1].start(0)
+                precolon = textcp[:secindex[sindex][0]+1] # get the text before colon
+                predot = re.finditer(r"\.",precolon) # get the position of the dots in precolon
+                
+                
+                predot = list(predot)[-1].start(0)                
+                if predot <lastcolon: # if the found dot is even before lastcolon
+                    try:    
+                        predot = re.finditer(r"(;|,|\n|\?|\s)",precolon) # find the next seperator
+                        predot = list(predot)[-1].start(0)
+                    except:
+                        import pdb;pdb.set_trace()
+                    
                     if predot <lastcolon:
                         predot = re.finditer(r"\s",precolon)
                         predot = list(predot)[-1].start(0)

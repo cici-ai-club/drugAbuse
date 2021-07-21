@@ -2,8 +2,8 @@ DeID,DocumentName,Sections,Keyterms,Rule
 1,Consult Note*-ACE - Addiction Consult Education Team,Substance Use & Treatment History,injection heroin,Rule 2
 1,Consult Note*-ACE - Addiction Consult Education Team,Social History,opioid use disorder,Rule 1
 1,Consult Note*-ACE - Addiction Consult Education Team,Social History,opiate dependency,Rule 1
-1,Consult Note*-ACE - Addiction Consult Education Team,Social History,misusing suboxone,Rule 2
-1,Consult Note*-ACE - Addiction Consult Education Team,Social History,od opiate,Rule 2
+1,Consult Note*-ACE - Addiction Consult Education Team,Social History,misusing prescribed suboxone,Rule 2
+1,Consult Note*-ACE - Addiction Consult Education Team,Social History,od on opiate,Rule 2
 1,Consult Note*-ACE - Addiction Consult Education Team,Assessment,the bridge,Rule 6
 1,Consult Note*-ACE - Addiction Consult Education Team,Plan,opioid use disorder,Rule 1
 1,Consult Note*-ACE - Addiction Consult Education Team,Plan,first bridge clinic,Rule 6
@@ -15,41 +15,44 @@ DeID,DocumentName,Sections,Keyterms,Rule
 2,Discharge Summary Final,wholeinfo,illicits:denies,Rule 5
 2,Discharge Summary Final,wholeinfo,drugs: denies,Rule 5
 2,Discharge Summary Final,Social history,suspected opioid dependence,Rule 3
-2,Discharge Summary Final,Social history,no evidence opioid withdrawal,Rule 3
-2,Discharge Summary Final,Recreational drugs,suspected opioid overdose,Rule 3
-2,Discharge Summary Final,Recreational drugs,denies opiate dependence,Rule 3
-2,Discharge Summary Final,drugs,without evidence opioid withdrawal,Rule 3
+2,Discharge Summary Final,Social history,no evidence of opioid withdrawal,Rule 3
+2,Discharge Summary Final,drugs,without evidence of opioid withdrawal,Rule 3
 2,Discharge Summary Final,drugs,suspected opioid od,Rule 3
 2,Discharge Summary Final,drugs,suspect opiate abuse,Rule 3
-2,Discharge Summary Final,Drugs,suspect opiate withdrawal,Rule 3
-2,Discharge Summary Final,Drugs,opiate withdrawal no,Rule 4
-2,Discharge Summary Final,Illicits,ivdu opiate,Rule 2
-2,Discharge Summary Final,Illicits,inject oxycodone,Rule 2
-2,Discharge Summary Final,Per Note,denies opioid dependency,Rule 3
+2,Discharge Summary Final,Drugs,suspected heroin od,Rule 3
+2,Discharge Summary Final,Drugs,suspected opioid use disorder,Rule 3
+2,Discharge Summary Final,Drugs,denies opiate abuse,Rule 3
+2,Discharge Summary Final,Drugs,without opiate dependence,Rule 3
+2,Discharge Summary Final,Drugs,suspected heroin overdose,Rule 3
+2,Discharge Summary Final,Illicits,ivdu and opiate,Rule 2
+2,Discharge Summary Final,Illicits,inject his oxycodone,Rule 2
+2,Discharge Summary Final,,suspect opiate withdrawal,Rule 3
+2,Discharge Summary Final,,opiate withdrawal is no,Rule 4
+2,Discharge Summary Final,Per Note,denies any opioids dependency,Rule 3
 2,Discharge Summary Final,Per Note,opioid dependency,Rule 1
 3,History and Physical Note *-MD2 - Medicine / Internal Medici,Social History,no opioid use disorder,Rule 3
-3,History and Physical Note *-MD2 - Medicine / Internal Medici,Social History,denied opioid dependency,Rule 3
+3,History and Physical Note *-MD2 - Medicine / Internal Medici,Social History,denied opioids dependency,Rule 3
 3,History and Physical Note *-MD2 - Medicine / Internal Medici,NEU,first bridge clinic,Rule 6
 3,History and Physical Note *-MD2 - Medicine / Internal Medici,Assessment/Plan,opioid abuse,Rule 1
 4,Discharge Summary Final,SOCIAL HISTORY,denies opiate abuse,Rule 3
-4,Discharge Summary Final,SOCIAL HISTORY,no history heroin abuse,Rule 3
+4,Discharge Summary Final,SOCIAL HISTORY,no history of heroin abuse,Rule 3
 5,ED General Note *,HISTORY OF PRESENT ILLNESS,opioid use disorder,Rule 1
 5,ED General Note *,PAST MEDICAL HISTORY,opioid use disorder,Rule 1
 5,ED General Note *,SOCIAL HISTORY,opioid use disorder,Rule 1
-5,ED General Note *,SOCIAL HISTORY,ivdu suboxone,Rule 2
-5,ED General Note *,SOCIAL HISTORY,addiction buprenorphine,Rule 2
+5,ED General Note *,SOCIAL HISTORY,ivdu on suboxone,Rule 2
+5,ED General Note *,SOCIAL HISTORY,addiction and buprenorphine,Rule 2
 6,Consult Note*-ACE - Addiction Consult Education Team,Reason for consult,opioid use disorder,Rule 1
 6,Consult Note*-ACE - Addiction Consult Education Team,Reason for consult,opioid addiction,Rule 1
 6,Consult Note*-ACE - Addiction Consult Education Team,Reason for consult,tramadol overdose,Rule 1
 6,Consult Note*-ACE - Addiction Consult Education Team,Reason for consult,heroin inject,Rule 1
-6,Consult Note*-ACE - Addiction Consult Education Team,Reason for consult,overdose morphine,Rule 2
-6,Consult Note*-ACE - Addiction Consult Education Team,HPI,injecting heroin,Rule 2
+6,Consult Note*-ACE - Addiction Consult Education Team,Reason for consult,overdose on morphine,Rule 2
+6,Consult Note*-ACE - Addiction Consult Education Team,HPI,injecting methamphetamine and heroin,Rule 2
 6,Consult Note*-ACE - Addiction Consult Education Team,PMH,hydrocodone addiction,Rule 1
 6,Consult Note*-ACE - Addiction Consult Education Team,PMH,opioid overdoses,Rule 1
 6,Consult Note*-ACE - Addiction Consult Education Team,PMH,heroin inject,Rule 1
-6,Consult Note*-ACE - Addiction Consult Education Team,PMH,over dose morphine,Rule 2
+6,Consult Note*-ACE - Addiction Consult Education Team,PMH,over dose on morphine,Rule 2
 6,Consult Note*-ACE - Addiction Consult Education Team,SH,narcotic abuse,Rule 1
-6,Consult Note*-ACE - Addiction Consult Education Team,Recommendations,without evidence opioid abuse,Rule 3
+6,Consult Note*-ACE - Addiction Consult Education Team,Recommendations,without evidence of opioid abuse,Rule 3
 7,ED Triage Note,wholeinfo,the bridge,Rule 6
 7,ED Triage Note,wholeinfo,heroin use disorder,Rule 1
 7,ED Triage Note,wholeinfo,suspected opioid dependance,Rule 3
